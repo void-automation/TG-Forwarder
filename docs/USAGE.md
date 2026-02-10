@@ -50,6 +50,7 @@ python src_tg_forwarder.py
 
 - The user account must be able to read the source chat and send into the destination chat.
 - The first run creates a `<TG_SESSION_NAME>.session` file locally.
+- Each detected message is logged with its message ID, numeric source `chat_id`, and text (or `<non-text message>`).
 - Use a process supervisor (systemd, docker restart policy, etc.) for production uptime.
 
 ## Troubleshooting
