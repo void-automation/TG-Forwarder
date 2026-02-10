@@ -54,11 +54,11 @@ python src_tg_forwarder.py
 - The first run creates a `<TG_SESSION_NAME>.session` file locally.
 - On startup, the script posts an online status message into `DESTINATION_CHAT`.
 - Each detected message is logged with its message ID, numeric source `chat_id`, and text (or `<non-text message>`).
-- If Telegram refuses literal forwarding for a message, the script sends a regular text fallback to `DESTINATION_CHAT` containing the detected message text.
+- For each detected message, the script sends a regular text message to `DESTINATION_CHAT` containing the detected text (or `<non-text message>` when empty).
 - Use a process supervisor (systemd, docker restart policy, etc.) for production uptime.
 
 ## Troubleshooting
 
 - **`Missing required environment variables`**: export all required values before running.
-- **Permission errors when forwarding**: verify the account has access to both chats. If Telegram blocks literal forwarding, the app now posts a text fallback with the detected message content.
+- **Permission errors when sending**: verify the account can post into the destination chat and has access to read the source chat.
 - **No messages arriving**: check `SOURCE_CHAT` identifier and account membership.
