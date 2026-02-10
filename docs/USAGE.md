@@ -62,3 +62,4 @@ python src_tg_forwarder.py
 - **`Missing required environment variables`**: export all required values before running.
 - **Permission errors when sending**: verify the account can post into the destination chat and has access to read the source chat.
 - **No messages arriving**: check `SOURCE_CHAT` identifier and account membership.
+- **Messages detected but not forwarded**: if source messages are sent by the same logged-in account, set `FORWARD_OWN_MESSAGES="true"`. Channel posts authored by the logged-in account are forwarded automatically.

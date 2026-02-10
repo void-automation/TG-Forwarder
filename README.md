@@ -6,6 +6,7 @@ A minimal Telegram forwarder that runs under a **standard user account** (not a 
 
 - Uses Telegram user credentials (`api_id` + `api_hash`) from [my.telegram.org](https://my.telegram.org).
 - Sends incoming message text to the destination chat in near real time using regular `send_message` delivery.
+- Forwards channel posts even when authored by the logged-in account; personal outgoing messages remain optional via `FORWARD_OWN_MESSAGES`.
 - Supports forwarding by username (`@mychannel`) or numeric chat IDs.
 - Graceful shutdown on `Ctrl+C` / `SIGTERM`.
 
