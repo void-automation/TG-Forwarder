@@ -26,6 +26,7 @@ Set the following environment variables:
 | `DESTINATION_CHAT` | Yes | Destination group/chat username (`@name`) or ID |
 | `TG_SESSION_NAME` | No | Session file prefix (default `tg_forwarder`) |
 | `FORWARD_OWN_MESSAGES` | No | `true/false`, default `false` |
+| `ONLINE_MESSAGE` | No | Startup status text sent to `DESTINATION_CHAT` once connected |
 | `LOG_LEVEL` | No | `DEBUG`, `INFO`, etc. (default `INFO`) |
 
 ### Example
@@ -37,6 +38,7 @@ export TG_SESSION_NAME="my_account"
 export SOURCE_CHAT="@source_channel"
 export DESTINATION_CHAT="@target_group"
 export FORWARD_OWN_MESSAGES="false"
+export ONLINE_MESSAGE="TG-Forwarder is online and listening for messages."
 export LOG_LEVEL="INFO"
 ```
 
@@ -50,6 +52,7 @@ python src_tg_forwarder.py
 
 - The user account must be able to read the source chat and send into the destination chat.
 - The first run creates a `<TG_SESSION_NAME>.session` file locally.
+- On startup, the script posts an online status message into `DESTINATION_CHAT`.
 - Each detected message is logged with its message ID, numeric source `chat_id`, and text (or `<non-text message>`).
 - Use a process supervisor (systemd, docker restart policy, etc.) for production uptime.
 

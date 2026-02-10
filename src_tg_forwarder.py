@@ -20,6 +20,7 @@ class Settings:
     source_chat: str
     destination_chat: str
     forward_own_messages: bool
+    online_message: str
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -47,6 +48,9 @@ class Settings:
             destination_chat=os.environ["DESTINATION_CHAT"],
             forward_own_messages=os.getenv("FORWARD_OWN_MESSAGES", "false").lower()
             in {"1", "true", "yes", "on"},
+            online_message=os.getenv(
+                "ONLINE_MESSAGE", "TG-Forwarder is online and listening for messages."
+            ),
         )
 
 
@@ -105,6 +109,14 @@ async def run(settings: Settings) -> None:
         me.username or "no-username",
         settings.source_chat,
     )
+
+    try:
+        await client.send_message(settings.destination_chat, settings.online_message)
+        log.info("Sent online status message to %s", settings.destination_chat)
+    except Exception:  # pragma: no cover - runtime network errors
+        log.exception(
+            "Failed to send online status message to %s", settings.destination_chat
+        )
 
     async with client:
         await stop_event.wait()
