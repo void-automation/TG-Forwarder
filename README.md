@@ -1,11 +1,11 @@
 # TG-Forwarder
 
-A minimal Telegram forwarder that runs under a **standard user account** (not a bot) and forwards every new message from a source channel/chat to a destination group/chat.
+A minimal Telegram forwarder that runs under a **standard user account** (not a bot) and relays each detected source message into a destination group/chat as text.
 
 ## Features
 
 - Uses Telegram user credentials (`api_id` + `api_hash`) from [my.telegram.org](https://my.telegram.org).
-- Forwards incoming messages in near real time, with automatic text fallback when Telegram forwarding is blocked.
+- Sends incoming message text to the destination chat in near real time using regular `send_message` delivery.
 - Supports forwarding by username (`@mychannel`) or numeric chat IDs.
 - Graceful shutdown on `Ctrl+C` / `SIGTERM`.
 
