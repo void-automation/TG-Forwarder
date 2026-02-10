@@ -67,6 +67,12 @@ async def run(settings: Settings) -> None:
 
     stop_event = asyncio.Event()
 
+    def build_fallback_text(event: events.NewMessage.Event) -> str:
+        body = (event.raw_text or "").strip()
+        if not body:
+            body = "<non-text message>"
+        return f"[Forward fallback from {settings.source_chat}]\n{body}"
+
     @client.on(events.NewMessage(chats=settings.source_chat))
     async def handler(event: events.NewMessage.Event) -> None:
         chat_id = int(event.chat_id) if event.chat_id is not None else None
@@ -90,7 +96,23 @@ async def run(settings: Settings) -> None:
                 settings.destination_chat,
             )
         except Exception:  # pragma: no cover - runtime network errors
-            log.exception("Failed to forward message id=%s", event.message.id)
+            log.exception(
+                "Failed to forward message id=%s, attempting fallback send",
+                event.message.id,
+            )
+            fallback_text = build_fallback_text(event)
+            try:
+                await client.send_message(settings.destination_chat, fallback_text)
+                log.info(
+                    "Sent fallback message for id=%s to %s",
+                    event.message.id,
+                    settings.destination_chat,
+                )
+            except Exception:  # pragma: no cover - runtime network errors
+                log.exception(
+                    "Failed to send fallback message for id=%s",
+                    event.message.id,
+                )
 
     def request_stop(signum: int, _frame: object) -> None:
         signal_name = signal.Signals(signum).name
