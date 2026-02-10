@@ -65,6 +65,14 @@ async def run(settings: Settings) -> None:
 
     @client.on(events.NewMessage(chats=settings.source_chat))
     async def handler(event: events.NewMessage.Event) -> None:
+        chat_id = int(event.chat_id) if event.chat_id is not None else None
+        log.info(
+            "Detected message id=%s from chat_id=%s: %s",
+            event.message.id,
+            chat_id,
+            event.raw_text or "<non-text message>",
+        )
+
         if event.out and not settings.forward_own_messages:
             log.debug("Skipping own outgoing message id=%s", event.message.id)
             return
