@@ -67,11 +67,20 @@ async def run(settings: Settings) -> None:
 
     stop_event = asyncio.Event()
 
-    def build_fallback_text(event: events.NewMessage.Event) -> str:
-        body = (event.raw_text or "").strip()
-        if not body:
-            body = "<non-text message>"
-        return f"[Forward fallback from {settings.source_chat}]\n{body}"
+    async def send_online_status_message(trigger: str) -> None:
+        try:
+            await client.send_message(settings.destination_chat, settings.online_message)
+            log.info(
+                "Sent online status message to %s (%s)",
+                settings.destination_chat,
+                trigger,
+            )
+        except Exception:  # pragma: no cover - runtime network errors
+            log.exception(
+                "Failed to send online status message to %s (%s)",
+                settings.destination_chat,
+                trigger,
+            )
 
     @client.on(events.NewMessage(chats=settings.source_chat))
     async def handler(event: events.NewMessage.Event) -> None:
@@ -87,32 +96,7 @@ async def run(settings: Settings) -> None:
             log.debug("Skipping own outgoing message id=%s", event.message.id)
             return
 
-        try:
-            await client.forward_messages(settings.destination_chat, event.message)
-            log.info(
-                "Forwarded message id=%s from %s to %s",
-                event.message.id,
-                settings.source_chat,
-                settings.destination_chat,
-            )
-        except Exception:  # pragma: no cover - runtime network errors
-            log.exception(
-                "Failed to forward message id=%s, attempting fallback send",
-                event.message.id,
-            )
-            fallback_text = build_fallback_text(event)
-            try:
-                await client.send_message(settings.destination_chat, fallback_text)
-                log.info(
-                    "Sent fallback message for id=%s to %s",
-                    event.message.id,
-                    settings.destination_chat,
-                )
-            except Exception:  # pragma: no cover - runtime network errors
-                log.exception(
-                    "Failed to send fallback message for id=%s",
-                    event.message.id,
-                )
+        await send_online_status_message(f"source message id={event.message.id}")
 
     def request_stop(signum: int, _frame: object) -> None:
         signal_name = signal.Signals(signum).name
@@ -132,13 +116,7 @@ async def run(settings: Settings) -> None:
         settings.source_chat,
     )
 
-    try:
-        await client.send_message(settings.destination_chat, settings.online_message)
-        log.info("Sent online status message to %s", settings.destination_chat)
-    except Exception:  # pragma: no cover - runtime network errors
-        log.exception(
-            "Failed to send online status message to %s", settings.destination_chat
-        )
+    await send_online_status_message("startup")
 
     async with client:
         await stop_event.wait()

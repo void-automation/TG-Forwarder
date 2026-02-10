@@ -5,7 +5,7 @@ A minimal Telegram forwarder that runs under a **standard user account** (not a 
 ## Features
 
 - Uses Telegram user credentials (`api_id` + `api_hash`) from [my.telegram.org](https://my.telegram.org).
-- Forwards incoming messages in near real time, with automatic text fallback when Telegram forwarding is blocked.
+- Posts the configured online-status text into the destination chat on startup and on each detected source message.
 - Supports forwarding by username (`@mychannel`) or numeric chat IDs.
 - Graceful shutdown on `Ctrl+C` / `SIGTERM`.
 
