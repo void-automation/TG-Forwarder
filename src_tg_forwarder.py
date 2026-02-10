@@ -83,8 +83,14 @@ async def run(settings: Settings) -> None:
             event.raw_text or "<non-text message>",
         )
 
-        if event.out and not settings.forward_own_messages:
-            log.debug("Skipping own outgoing message id=%s", event.message.id)
+        # Channel posts may be marked as outgoing when posted by the logged-in
+        # account, but those are typically still expected to be forwarded.
+        is_channel_post = bool(getattr(event.message, "post", False))
+        if event.out and not settings.forward_own_messages and not is_channel_post:
+            log.info(
+                "Skipping own outgoing message id=%s (set FORWARD_OWN_MESSAGES=true to include these)",
+                event.message.id,
+            )
             return
 
         message_text = build_message_text(event)
